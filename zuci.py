@@ -1,5 +1,6 @@
 import argparse
 import random
+import sys
 
 def parse_args():
     parser = argparse.ArgumentParser()
@@ -10,18 +11,22 @@ def parse_args():
     shengzi_parser = subparsers.add_parser('shengzi',
                                            help='print out shenngzi to test')
     shengzi_parser.add_argument('--count', dest='count', default=10, type=int,
-                                help='How many shengzi you want to test')
+                                help='How many shengzi you want to test, default (10)')
 
     # create the parser for the "zuci" command
     zuci_parser = subparsers.add_parser('zuci',
                                         help='print out cizu to test')
     zuci_parser.add_argument('--count', dest='count', default=10, type=int,
-                             help='How many cizu you want to test')
+                             help='How many cizu you want to test, default (10)')
     zuci_parser.add_argument('--category', dest='category', default='general',
-                             help='Where do those cizu belong, such as animal, food')
-
+                             help='Catetory of cizu, such as animal, food, default (general)')
 
     namespace = parser.parse_args()
+
+    if namespace.subparser_name != 'shengzi' and namespace.subparser_name != 'zuci':
+        parser.print_help()
+        sys.exit(1)
+
     return namespace
 
 def load_cihui(file_name):
