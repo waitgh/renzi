@@ -17,7 +17,7 @@ def parse_args():
                                         help='print out cizu to test')
     zuci_parser.add_argument('--count', dest='count', default=10, type=int,
                              help='How many cizu you want to test')
-    zuci_parser.add_argument('--category', dest='category', default='animal',
+    zuci_parser.add_argument('--category', dest='category', default='general',
                              help='Where do those cizu belong, such as animal, food')
 
 
@@ -30,7 +30,9 @@ def load_cihui(file_name):
         for line in f.readlines():
             line = line.strip()
             if line:
-                cihui.append(line.split()[0])
+                ci = line.split()[0]
+                if len(ci) > 1:
+                    cihui.append(ci)
     return cihui
 
 def filter_cihui(clist, zilist):
@@ -101,6 +103,8 @@ if __name__ == '__main__':
            cilist = load_cihui('./poem.txt')
        elif namespace.category == 'place':
            cilist = load_cihui('./place.txt')
+       elif namespace.category == 'general':
+           cilist = load_cihui('./changyongcidian.txt')
 
     zilist = load_shengzi('./shengzi.txt')
     filterd_ci = filter_cihui(cilist, zilist)
