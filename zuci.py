@@ -10,16 +10,18 @@ def parse_args():
     # create the parser for the "shengzi" command
     shengzi_parser = subparsers.add_parser('shengzi',
                                            help='print out shenngzi to test')
-    shengzi_parser.add_argument('--count', dest='count', default=10, type=int,
+    shengzi_parser.add_argument('--count', '-c', dest='count', default=10, type=int,
                                 help='How many shengzi you want to test, default (10)')
 
     # create the parser for the "zuci" command
     zuci_parser = subparsers.add_parser('zuci',
                                         help='print out cizu to test')
-    zuci_parser.add_argument('--count', dest='count', default=10, type=int,
+    zuci_parser.add_argument('--count', '-c', dest='count', default=10, type=int,
                              help='How many cizu you want to test, default (10)')
-    zuci_parser.add_argument('--category', dest='category', default='general',
-                             help='Catetory of cizu, such as animal, food, default (general)')
+    zuci_parser.add_argument('--category', '-t', dest='category', default='general',
+                             help='Catetory of cizu, such as animal, food, idiom, poem, default (general)')
+    zuci_parser.add_argument('--zi', '-z', dest='zi',
+                             help='Find all the cizu with the particular shengzi')
 
     namespace = parser.parse_args()
 
@@ -59,6 +61,15 @@ def filter_cihui(clist, zilist):
            _ret.append(ci)
     return _ret
 
+def shengzi_zuci(zi, clist):
+    '''Find all the zicu associated with a zi
+    '''
+    _ret = []
+    for ci in clist:
+        if zi in ci:
+           _ret.append(ci)
+    return _ret
+
 def load_shengzi(file_name):
     shengzi = []
     with open(file_name, "r", encoding='utf-8', ) as f:
@@ -72,6 +83,17 @@ def load_shengzi(file_name):
         for line in f.readlines():
             shengzi += line.strip().split()
     return shengzi
+
+def dedup(zilist):
+    _dict = {}
+    for zi in zilist:
+        if zi in _dict:
+            _dict[zi] += 1
+        else:
+            _dict[zi] = 1
+    for k, v in _dict.items():
+        if v > 1:
+            print(k)
 
 def zprint(zlist, width=10):
     count = 0
@@ -112,7 +134,10 @@ if __name__ == '__main__':
            cilist = load_cihui('./changyongcidian.txt')
 
     zilist = load_shengzi('./shengzi.txt')
+    dedup(zilist)
     filterd_ci = filter_cihui(cilist, zilist)
+    if namespace.zi:
+        filterd_ci = shengzi_zuci(namespace.zi, filterd_ci)
 
     if namespace.subparser_name == 'shengzi':
         random_zprint(zilist, namespace.count)
