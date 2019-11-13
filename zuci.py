@@ -23,9 +23,16 @@ def parse_args():
     zuci_parser.add_argument('--zi', '-z', dest='zi',
                              help='Find all the cizu with the particular shengzi')
 
+    # create the parser for the "similar" command
+    similar_shengzi_parser = subparsers.add_parser('similar',
+                                                   help='print out similar shenngzi to test')
+    similar_shengzi_parser.add_argument('--count', '-c', dest='count', default=10, type=int,
+                                        help='How many similars shengzi you want to test, default (10)')
+
     namespace = parser.parse_args()
 
-    if namespace.subparser_name != 'shengzi' and namespace.subparser_name != 'zuci':
+    if (namespace.subparser_name != 'shengzi' and namespace.subparser_name != 'zuci'
+        and namespace.subparser_name != 'similar'):
         parser.print_help()
         sys.exit(1)
 
@@ -77,12 +84,12 @@ def load_shengzi(file_name):
             shengzi += line.strip().split()
     return shengzi
 
-def load_shengzi(file_name):
-    shengzi = []
+def load_similar_shengzi(file_name):
+    similar_shengzi = []
     with open(file_name, "r", encoding='utf-8', ) as f:
         for line in f.readlines():
-            shengzi += line.strip().split()
-    return shengzi
+            similar_shengzi.append(line.strip())
+    return similar_shengzi
 
 def dedup(zilist):
     _dict = {}
@@ -107,14 +114,14 @@ def zprint(zlist, width=10):
     if line:
         print('{0}\n'.format(line))
 
-def random_zprint(target_list, number):
+def random_zprint(target_list, number, width=10):
     '''Print random number of zi/ci from the target list
     '''
     if number <= len(target_list) and number > 0:
-        zprint(random.sample(target_list, number))
+        zprint(random.sample(target_list, number), width)
     else:
         random.shuffle(target_list)
-        zprint(target_list)
+        zprint(target_list, width)
 
 if __name__ == '__main__':
     namespace = parse_args()
@@ -136,10 +143,13 @@ if __name__ == '__main__':
     zilist = load_shengzi('./shengzi.txt')
     dedup(zilist)
     filterd_ci = filter_cihui(cilist, zilist)
-    if namespace.zi:
+    if namespace.subparser_name == 'zuci' and namespace.zi:
         filterd_ci = shengzi_zuci(namespace.zi, filterd_ci)
 
     if namespace.subparser_name == 'shengzi':
         random_zprint(zilist, namespace.count)
     elif namespace.subparser_name == 'zuci':
         random_zprint(filterd_ci, namespace.count)
+    elif namespace.subparser_name == 'similar':
+        similar_zilist = load_similar_shengzi('./similar.txt')
+        random_zprint(similar_zilist, namespace.count, width=1)
