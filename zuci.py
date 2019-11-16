@@ -88,7 +88,9 @@ def load_similar_shengzi(file_name):
     similar_shengzi = []
     with open(file_name, "r", encoding='utf-8', ) as f:
         for line in f.readlines():
-            similar_shengzi.append(line.strip())
+            new_line = line.strip().split()
+            random.shuffle(new_line)
+            similar_shengzi.append(' '.join(new_line))
     return similar_shengzi
 
 def dedup(zilist):
